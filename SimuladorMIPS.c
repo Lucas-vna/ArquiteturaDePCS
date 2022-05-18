@@ -26,21 +26,14 @@ void add(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 void addi(uint8_t dest, uint8_t src, int16_t imm, int reg[])
 {
 
-  if (dest == 29)
-  {
     reg[dest] = reg[src] + imm / 4;
-  } // if
-  else
-  {
-    reg[dest] = reg[src] + reg[src];
-  } // else
 
 } // function addi
 
 void sub(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 {
 
-  reg[dest] = reg[src_1] + reg[src_2];
+  reg[dest] = reg[src_1] - reg[src_2];
 
 } // function sub
 
@@ -79,7 +72,7 @@ void xor (uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
   
 } // function xor
 
-    void nor(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
+void nor(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 {
 
   reg[dest] = !(reg[src_1] | reg[src_2]);
@@ -199,82 +192,82 @@ int main(int argc, char *argv[])
 
       case 0x20: // CASE ADD
         add(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf(" Adição: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x8: // CASE ADDI
         addi(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Adição imediata: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x22: // CASE SUB
         sub(rd, rs, rt, R);
-        printf("  Alguma subtração: registrador destino  %d\n\n", R[rd]);
+        printf("  Subtração: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x18: // CASE MULT
         mult(rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Multiplicação: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x1A: // CASE DIV
         divv(rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Divisão: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x24: // CASE AND
         and(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso AND: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x25: // CASE OR
         or(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso OR: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x26: // CASE XOR
         xor(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso XOR: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x27: // CASE NOR
         nor(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso NOR: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x2A: // CASE SLT
         slt(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso SLT: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x00: // CASE SLL
         sll(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso SLL: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x2: // CASE SRL
         srl(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso SRL: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0x3: // CASE SRA
         sra(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso SRA: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0xC: // CASE ANDI
         andi(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso ANDI: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0xD: // CASE ORI
         ori(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso ORI: registrador destino  %d\n\n", R[rd]);
         break;
 
       case 0xE: // CASE XORI
         xori(rd, rs, rt, R);
-        printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
+        printf("  Caso XORI: registrador destino  %d\n\n", R[rd]);
         break;
 
       }//switch interno
