@@ -1,3 +1,13 @@
+/*
+-> adicionar mascara do i e j
+-> incluir instruçoes tipo i e j
+-> implementar testes
+-> chamada de sistema
+-> alegro
+
+
+*/
+
 // SIMULADOR MIPS
 
 #include <stdio.h>
@@ -37,19 +47,17 @@ void sub(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 
 } // function sub
 
-void mult(uint8_t src_1, uint8_t src_2, int reg[])
+void mull(uint8_t src_1, uint8_t src_2, int reg[])
 {
 
-  reg[33] = reg[src_1] * reg[src_2];
-  reg[32] = 0;
+  ->reg[32] = reg[src_1] * reg[src_2];
 
 } // function mult
 
 void divv(uint8_t src_1, uint8_t src_2, int reg[])
 {
 
-  reg[32] = reg[src_1] % reg[src_2];
-  reg[33] = reg[src_1] / reg[src_2];
+  ->reg[] = reg[src_1] / reg[src_2];
 
 } // function div
 
@@ -205,8 +213,8 @@ int main(int argc, char *argv[])
         printf("  Subtração: registrador destino  %d\n\n", R[rd]);
         break;
 
-      case 0x18: // CASE MULT
-        mult(rs, rt, R);
+      case 0x18: // CASE MUL
+        mul(rs, rt, R);
         printf("  Multiplicação: registrador destino  %d\n\n", R[rd]);
         break;
 
