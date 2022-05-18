@@ -52,7 +52,7 @@ void mult(uint8_t src_1, uint8_t src_2, int reg[])
 
 } // function mult
 
-void div(uint8_t src_1, uint8_t src_2, int reg[])
+void divv(uint8_t src_1, uint8_t src_2, int reg[])
 {
 
   reg[32] = reg[src_1] % reg[src_2];
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   int result;
 
   // Abre um arquivo BINÁRIO para LEITURA
-  FILE *arq = fopen(argv[1], "r+b");
+  FILE *arq = fopen(/*argv[]*/ "teste.bin", "r+b");
 
   if (arq == NULL) // Se houve erro na abertura
   {
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
   }
 
   result = fread(ram, 4, 100, arq); // (buffer, numero de bytes, qnde de dados que vai tentar ler, arquivo)
-  printf("Nro de elementos lidos: %d\n", result);
+  printf("Numero de elementos lidos: %d\n", result);
 
   for (int i = 0; i < result; i++)
   {
@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
         break;
 
       case 0x1A: // CASE DIV
-        div(rs, rt, R);
+        divv(rs, rt, R);
         printf("  Alguma adição: registrador destino  %d\n\n", R[rd]);
         break;
 
