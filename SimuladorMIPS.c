@@ -23,9 +23,9 @@ uint32_t opcode, rs, rt, rd, shamt, funct;
 
 uint32_t pc = 0, ic = 0;
 
-//---------------------------------------------------------------------
-// FUNCOES LOGICA E ARITMETICAS
-//---------------------------------------------------------------------
+//----------------------------------------------------
+//----------------------TIPO R------------------------
+//----------------------------------------------------
 
 void add(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 {
@@ -34,16 +34,6 @@ void add(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 
 } // function add
 
-void addi(uint8_t dest, uint8_t src, int16_t imm, int reg[])
-{
-    if(reg[29])
-    {
-        reg[dest] = reg[src] + imm/4;
-    }else
-    reg[dest] = reg[src] + imm ;
-
-} // function addi
-
 void sub(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 {
 
@@ -51,18 +41,17 @@ void sub(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 
 } // function sub
 
-void mult(uint8_t src_1, uint8_t src_2, int reg[])
+void mult(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 {
 
-    reg[33] = reg[src_1] * reg[src_2];
-    reg[32] = 0;
+    reg[dest] = reg[src_1] * reg[src_2];    
 
 } // function mult
 
-void divv(uint8_t src_1, uint8_t src_2, int reg[])
+void divv(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 {
-    reg[32] = reg[src_1] % reg[src_2];
-    reg[33] = reg[src_1] / reg[src_2];
+    
+    reg[dest] = reg[src_1] / reg[src_2];
 
 } // function div
 
@@ -93,7 +82,7 @@ void xor (uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[]) {
 void slt(uint8_t dest, uint8_t src_1, uint8_t src_2, int reg[])
 {
 
-    reg[dest] = reg[src_1] < reg[src_2];
+    reg[dest] = (reg[src_1] < reg[src_2]);    
 
 } // function slt
 
@@ -118,6 +107,16 @@ void sra(uint8_t dest, uint8_t src, uint8_t shamt, int reg[])
 
 } // function sra
 
+//----------------------------------------------------
+//----------------------TIPO I------------------------
+//----------------------------------------------------
+
+void addi(uint8_t dest, uint8_t src, int16_t imm, int reg[])
+{
+    reg[dest] = reg[src] + imm;
+
+} // function addi
+
 void andi(uint8_t dest, uint8_t src, uint8_t imm, int reg[])
 {
 
@@ -138,21 +137,30 @@ void xori(uint8_t dest, uint8_t src, uint8_t imm, int reg[])
 
 } // function xori
 
+//----------------------------------------------------
+//----------------------TIPO J------------------------
+//----------------------------------------------------
+
 int j(uint32_t target)
 {
-    return (int)((target << 2) - 0x400000) / 4;
+    return (int)((target << 2)/* - 0x400000*/) / 4;
 }
 
 int jr(uint8_t src, int reg[])
 {
+    reg[src] = reg[31];
     return reg[src];
 }
 
 int jal(int pc, uint32_t target, int reg[])
 {
     reg[31] = pc;
-    return (int)((target << 2) - 0x400000) / 4;
+    return (int)((target << 2)/* - 0x400000*/) / 4;
 }
+
+//----------------------------------------------------
+//----------------------LW E SW-----------------------
+//----------------------------------------------------
 
 bool lw(uint8_t dest, int16_t offset, uint8_t src, int reg[], int pilha[])
 {
@@ -165,12 +173,17 @@ bool lw(uint8_t dest, int16_t offset, uint8_t src, int reg[], int pilha[])
 
 bool sw(uint8_t dest, int16_t offset, uint8_t src, int reg[], int pilha[])
 {
+    // offset é o imediado para o armazenamento da pilha
     if (offset / 4 + reg[src] >= SIZE)
         return false;
 
     pilha[offset / 4 + reg[src]] = reg[dest];
     return true;
 }
+
+//----------------------------------------------------
+//----------------------SYSCALL-----------------------
+//----------------------------------------------------
 
 int syscall(int pc, int reg[], char string_data[])
 {
@@ -195,10 +208,11 @@ int syscall(int pc, int reg[], char string_data[])
     return pc;
 }
 
-//---------------------------------------------------------------------
-// MAIN
-//---------------------------------------------------------------------
 
+
+//----------------------------------------------------
+//----------------------MAIN--------------------------
+//----------------------------------------------------
 int main(int argc, char *argv[])
 {
 
@@ -207,7 +221,7 @@ int main(int argc, char *argv[])
     int result;
 
     // Abre um arquivo BINÁRIO para LEITURA
-    FILE *arq = fopen(/*argv[]*/ "teste.bin", "r+b");
+    FILE *arq = fopen(/*argv[]*/ "testetipor.bin", "r+b");
 
     if (arq == NULL) // Se houve erro na abertura
     {
@@ -224,7 +238,7 @@ int main(int argc, char *argv[])
     }
 
     uint32_t instruct[result];
-    int aux;
+    int aux = 0;
 
     for (int i = 0; i < result; i++)
     {
@@ -246,6 +260,7 @@ int main(int argc, char *argv[])
     //----------------------TIPO R------------------------
     //----------------------------------------------------
     int pc = 0;
+    int valor = 0;
 
     do
     {
@@ -277,7 +292,8 @@ int main(int argc, char *argv[])
             // printf("%01x ", instruct);
 
             R[rs] = 10;
-            R[rt] = 0;
+            R[rt] = 5;
+            // R[rd] = 10;
 
             switch (funct)
             {
@@ -293,12 +309,12 @@ int main(int argc, char *argv[])
                 break;
 
             case 0x18: // CASE MUL
-                mult(rs, rt, R);
+                mult(rd, rs, rt, R);
                 printf("  Multiplicacao: registrador destino  %d\n\n", R[rd]);
                 break;
 
             case 0x1A: // CASE DIV
-                divv(rs, rt, R);
+                divv(rd, rs, rt, R);
                 printf("  Divisao: registrador destino  %d\n\n", R[rd]);
                 break;
 
@@ -328,17 +344,17 @@ int main(int argc, char *argv[])
                 break;
 
             case 0x00: // CASE SLL
-                sll(rd, rs, rt, R);
+                sll (rd, rt, shamt, R);
                 printf("  Caso SLL: registrador destino  %d\n\n", R[rd]);
                 break;
 
             case 0x2: // CASE SRL
-                srl(rd, rs, rt, R);
+                srl (rd, rt, shamt, R);
                 printf("  Caso SRL: registrador destino  %d\n\n", R[rd]);
                 break;
 
             case 0x3: // CASE SRA
-                sra(rd, rs, rt, R);
+                sra (rd, rt, shamt, R);
                 printf("  Caso SRA: registrador destino  %d\n\n", R[rd]);
                 break;
 
@@ -347,7 +363,12 @@ int main(int argc, char *argv[])
                 if (aux < result && aux >= 0)
                 {
                     pc = aux;
+                    printf("Conteudo dos registradores:\n  Registrador %d: %d\n  Novo $pc: %d\n\n", rs, R[rs], pc);
                 }
+                else {
+                    printf("Nao foi possivel realizar o salto -> valor de $pc fora do escopo\n");
+                    exit(3);
+                }                
 
                 break;
 
@@ -359,25 +380,38 @@ int main(int argc, char *argv[])
 
         else if (opcode == 0x2 || opcode == 0x3)
         {
-            uint32_t target = ic & 0x3FFFFFF;
-
-
+            uint32_t target = instruct[pc] & 0x3FFFFFF;
 
             switch (opcode)
             {
             case 0x2: // J
+                printf("$pc = %d\nOperacao: j 0x%08x\n", pc, target);
                 aux = j(target);
+                printf("AUX: %d\nOperacao: j 0x%08x\n", aux, target);
                 if (aux < result && aux >= 0)
                 {
                     pc = aux - 1;
+                    printf("Conteudo dos registradores:\n  Novo $pc: %d\n\n", pc + 1);
+                }
+                else
+                {
+                    printf("Nao foi possivel realizar o salto -> valor de $pc fora do escopo\n");
+                    exit(3);
                 }
                 break;
 
             case 0x3: // Jal
+                printf("$pc = %d\nOperacao: jal 0x%08x\n", pc, target);
                 aux = jal(pc, target, R);
                 if (aux < result && aux >= 0)
                 {
                     pc = aux - 1;
+                    printf("Conteudo dos registradores:\n  Registrador 31: %d\n  Novo $pc: %d\n\n", R[31], pc + 1);
+                }
+                else
+                {
+                    printf("Nao foi possivel realizar o salto -> valor de $pc fora do escopo\n");                    
+                    exit(3);
                 }
                 break;
 
@@ -389,39 +423,42 @@ int main(int argc, char *argv[])
         // MASCARA DO TIPO I
         else
         {
-            rs = (ic & 0x3E00000) >> 21;
-            rt = (ic & 0x1F0000) >> 16;
-            int16_t immediate = ic & 0xFFFF;
+            rs = (instruct[pc] & 0x3E00000) >> 21;
+            rd = (instruct[pc] & 0x1F0000) >> 16;
+            int16_t immediate = instruct[pc] & 0xFFFF;
 
-            printf("\n opcode %01x | rs %01x | rs %01x | imetiato: %01x\n", opcode, rs, rs, immediate);
+            R[rd] = 0;
+            R[rs] = 10;
 
+            printf("PC: %d", pc);
+            printf("\n opcode %01x | rd %01x | rs %01x | imetiato: %01x\n", opcode, rd, rs, immediate);
 
             switch (opcode)
             {
             case 0x8: // ADDI
-                addi(rs, rs, immediate, R);
-                printf("  Adicao imediata: registrador destino  %d\n\n", R[rs]);
+                addi(rd, rs, immediate, R);
+                printf("  Adicao imediata: registrador destino  %d\n\n", R[rd]);
                 break;
 
             case 0xC: // ANDI
-                andi(rt, rs, immediate, R);
+                andi(rd, rs, immediate, R);
                 printf("  Caso ANDI: registrador destino  %d\n\n", R[rd]);
                 break;
 
             case 0xD: // ORI
-                ori(rt, rs, immediate, R);
+                ori(rd, rs, immediate, R);
                 printf("  Caso ORI: registrador destino  %d\n\n", R[rd]);
                 break;
 
             case 0xE: // XORI
-                xori(rt, rs, immediate, R);
+                xori(rd, rs, immediate, R);
                 printf("  Caso XORI: registrador destino  %d\n\n", R[rd]);
                 break;
 
             case 0x23: // LW
-                if (lw(rt, immediate, rs, R, pilha))
+                if (lw(rd, immediate, rs, R, pilha))
                 {
-                    printf("Conteudo dos registradores:\n  Registrador %d: %d\n  Registrador %d: %d\n\n", rt, R[rt], rs, R[rs]);
+                    printf("Conteudo dos registradores:\n  Registrador %d: %d\n  Registrador %d: %d\n\n", rd, R[rd], rs, R[rs]);
                 }
                 else
                 {
@@ -431,24 +468,24 @@ int main(int argc, char *argv[])
 
                 break;
 
-            case 0x2D: // SW
-                if (sw(rt, immediate, rs, R, pilha))
+            case 0x2B: // SW
+                if (sw(rd, immediate, rs, R, pilha))
                 {
-                    printf("Conteudo dos registradores:\n  Registrador %d: %d\n  Registrador %d: %d\n", rt, R[rt], rs, R[rs]);
+                    printf("Conteudo dos registradores:\n  Registrador %d: %d\n  Registrador %d: %d\n", rd, R[rd], rs, R[rs]);
                     printf("Conteudo da memoria:\n  RAM[%d]: %d\n\n", R[rs] + immediate / 4, pilha[immediate / 4 + R[rs]]);
                 }
                 else
                 {
                     printf("Erro ao realizar a operacao -> Nao foi reservado espaço na memoria\n");
                     exit(3);
-                    break;
                 }
+                break;
 
             default:
                 break;
-            }
-        }
+            } // SWITCH
+        }     // ELSE
         pc++;
     } while (pc < result);
     return 0;
-}
+} // MAIN
